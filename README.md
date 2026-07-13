@@ -18,6 +18,8 @@ pnpm install
 docker compose up -d
 pnpm run dev
 ```
+install pnpm using 
+npm install -g pnpm
 
 ## Project
 
