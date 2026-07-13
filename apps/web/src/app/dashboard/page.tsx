@@ -18,7 +18,6 @@ export default function DashboardPage() {
     fetch("/api/products").then(r => r.json()).then(d => { setProducts(d.products); setStats(d.stats) })
   }, [])
 
-  // group by product name
   const groups: Record<string, Product[]> = {}
   for (const p of products) {
     if (!groups[p.name]) groups[p.name] = []
@@ -42,16 +41,16 @@ export default function DashboardPage() {
       </header>
 
       <div className="max-w-5xl mx-auto p-6 space-y-6">
-        {/* stats */}
         <div className="flex gap-4">
           <StatCard label="Produk dipantau" value={stats.total} />
           <StatCard label="Rata-rata harga" value={`Rp${stats.avgPrice.toLocaleString()}`} />
           <StatCard label="Produk unik" value={Object.keys(groups).length} />
         </div>
 
-        {/* grouped product cards */}
         {filtered.map(([name, variants]) => {
           const minPrice = Math.min(...variants.map(v => v.price))
+          const maxPrice = Math.max(...variants.map(v => v.price))
+          const range = maxPrice - minPrice || 1
           return (
             <div key={name} className="bg-white rounded-xl border overflow-hidden">
               <div className="px-5 py-3 font-semibold border-b bg-slate-50">{name}</div>
@@ -94,6 +93,24 @@ export default function DashboardPage() {
                   })}
                 </tbody>
               </table>
+              {/* bar chart */}
+              <div className="flex gap-1 p-4 pt-3">
+                {variants.map(v => {
+                  const pct = ((v.price - minPrice) / range) * 100
+                  return (
+                    <div key={v.id} className="flex-1 flex flex-col items-center gap-1">
+                      <div className="w-full bg-orange-100 rounded-t relative" style={{ height: 40 }}>
+                        <div
+                          className="absolute bottom-0 w-full bg-orange-500 rounded-t transition-all"
+                          style={{ height: `${Math.max(100 - pct, 5)}%`, minHeight: 4 }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-medium capitalize">{v.marketplace}</span>
+                      <span className="text-[10px] text-slate-500">Rp{v.price.toLocaleString()}</span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )
         })}
