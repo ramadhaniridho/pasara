@@ -1,49 +1,65 @@
-import Link from "next/link"
+"use client"
 
-export default function Home() {
+import { useEffect, useState } from "react"
+
+type Doctor = {
+  id: string
+  name: string
+  specialization: string
+  location: string | null
+  hospital: string | null
+  price: number | null
+  schedules: { dayOfWeek: number; startTime: string; endTime: string }[]
+}
+
+export default function HomePage() {
+  const [doctors, setDoctors] = useState<Doctor[]>([])
+  const [specs, setSpecs] = useState<string[]>([])
+  const [filterSpec, setFilterSpec] = useState("")
+  const [search, setSearch] = useState("")
+
+  useEffect(() => {
+    fetch("/api/specializations").then(r => r.json()).then(setSpecs)
+  }, [])
+
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (filterSpec) params.set("specialization", filterSpec)
+    if (search) params.set("search", search)
+    fetch(`/api/doctors?${params}`).then(r => r.json()).then(setDoctors)
+  }, [filterSpec, search])
+
+  const days = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b bg-white">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span className="font-bold text-lg tracking-tight">Pasara</span>
-          <Link
-            href="/dashboard"
-            className="text-sm px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition"
-          >
-            Dashboard
-          </Link>
-        </div>
+    <div className="min-h-screen bg-slate-50">
+      <header className="bg-white border-b px-6 py-4 flex items-center gap-4">
+        <h1 className="font-bold text-xl">Sehatin</h1>
+        <select className="border rounded-lg px-3 py-1.5 text-sm" value={filterSpec} onChange={e => setFilterSpec(e.target.value)}>
+          <option value="">Semua Spesialis</option>
+          {specs.map(s => <option key={s}>{s}</option>)}
+        </select>
+        <input className="border rounded-lg px-3 py-1.5 text-sm flex-1" placeholder="Cari dokter..." value={search} onChange={e => setSearch(e.target.value)} />
       </header>
 
-      <main className="flex-1 max-w-5xl mx-auto px-6 py-20">
-        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
-          Pantau pasar kompetitor.
-          <br />
-          <span className="text-orange-500">Otomatis.</span>
-        </h1>
-        <p className="mt-6 text-lg text-slate-600 max-w-xl">
-          Pasara scraping harga, stok, dan tren produk dari marketplace. Dashboard realtime, insight AI, notifikasi otomatis.
-          Satu orang, satu sistem.
-        </p>
-        <div className="mt-8 flex gap-4">
-          <Link
-            href="/dashboard"
-            className="px-6 py-3 rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800 transition"
-          >
-            Mulai Pantau
-          </Link>
-          <a
-            href="https://github.com/ramadhaniridho/pasara"
-            className="px-6 py-3 rounded-xl border text-slate-700 font-medium hover:bg-slate-100 transition"
-          >
-            GitHub →
+      <main className="max-w-5xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {doctors.map(d => (
+          <a key={d.id} href={`/doctors/${d.id}`} className="block bg-white rounded-xl border p-5 hover:shadow-md transition">
+            <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-xl font-bold text-blue-600 mb-3">
+              {d.name[0]}
+            </div>
+            <h2 className="font-semibold">{d.name}</h2>
+            <p className="text-sm text-blue-600 font-medium">{d.specialization}</p>
+            <p className="text-xs text-slate-400 mt-1">{d.hospital} · {d.location}</p>
+            {d.price && <p className="text-sm font-semibold mt-2">Rp{d.price.toLocaleString()}</p>}
+            <div className="flex gap-1 mt-2 flex-wrap">
+              {d.schedules.slice(0, 5).map(s => (
+                <span key={s.dayOfWeek} className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">{days[s.dayOfWeek]} {s.startTime}</span>
+              ))}
+            </div>
           </a>
-        </div>
+        ))}
       </main>
-
-      <footer className="border-t py-6 text-sm text-slate-500 text-center">
-        Pasara • Ramadhani Ridho
-      </footer>
     </div>
   )
 }

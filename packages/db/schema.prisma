@@ -7,27 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Product {
-  id          String   @id @default(cuid())
-  name        String
-  marketplace String
-  url         String   @unique
-  price       Int
-  image       String?
-  rating      Float?
-  sold        Int?
-  store       String?
-  scrapedAt   DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  snapshots   PriceSnapshot[]
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
 }
 
-model PriceSnapshot {
+model User {
   id        String   @id @default(cuid())
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  price     Int
-  sold      Int?
-  scrapedAt DateTime @default(now())
+  name      String
+  email     String?  @unique
+  phone     String?
+  password  String?
+  role      Role     @default(PATIENT)
+  createdAt DateTime @default(now())
+  doctor        Doctor?
+  appointments  DoctorAppointment[] @relation("doctorAppointments")
+}
+
+model Doctor {
+  id             String   @id @default(cuid())
+  userId         String?  @unique
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  specialization String
+  location       String?
+  photo          String?
+  about          String?
+  price          Int?
+  hospital       String?
+  createdAt      DateTime @default(now())
+  schedules      Schedule[]
+  appointments   DoctorAppointment[]
+}
+
+model Schedule {
+  id        String @id @default(cuid())
+  doctorId  String
+  doctor    Doctor  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  startTime String
+  endTime   String
+}
+
+model DoctorAppointment {
+  id        String   @id @default(cuid())
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  patientId String
+  patient   User     @relation("doctorAppointments", fields: [patientId], references: [id])
+  date      DateTime
+  time      String
+  status    String   @default("pending")
+  notes     String?
+  createdAt DateTime @default(now())
 }
