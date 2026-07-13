@@ -1,0 +1,18 @@
+
+> @pasara/web@0.1.0 build /home/ridho_heranof9/pasara/apps/web
+> next build
+
+   ▲ Next.js 15.5.20
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 6.6s
+   Linting and checking validity of types ...
+Failed to compile.
+
+src/app/api/products/[id]/route.ts
+Type error: Route "src/app/api/products/[id]/route.ts" has an invalid "GET" export:
+  Type "{ params: { id: string; }; }" is not a valid type for the function's second argument.
+
+Next.js build worker exited with code: 1 and signal: null
+ ELIFECYCLE  Command failed with exit code 1.
