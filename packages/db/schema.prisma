@@ -7,38 +7,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  PATIENT
-  DOCTOR
-  ADMIN
-}
-
-model User {
+model Clinic {
   id        String   @id @default(cuid())
   name      String
-  email     String?  @unique
+  slug      String   @unique
+  address   String?
   phone     String?
-  password  String?
-  role      Role     @default(PATIENT)
+  email     String?
+  logo      String?
+  about     String?
+  openDays  String?
+  openHours String?
   createdAt DateTime @default(now())
-  doctor        Doctor?
-  appointments  DoctorAppointment[] @relation("doctorAppointments")
+  doctors   Doctor[]
+  services  Service[]
+  promotions Promotion[]
 }
 
 model Doctor {
-  id             String   @id @default(cuid())
-  userId         String?  @unique
-  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name           String
-  specialization String
-  location       String?
-  photo          String?
-  about          String?
-  price          Int?
-  hospital       String?
-  createdAt      DateTime @default(now())
-  schedules      Schedule[]
-  appointments   DoctorAppointment[]
+  id        String   @id @default(cuid())
+  clinicId  String
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name      String
+  specialty String
+  photo     String?
+  about     String?
+  createdAt DateTime @default(now())
+  schedules Schedule[]
+  appointments Appointment[]
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Int?
+  duration    Int?
+  sortOrder   Int      @default(0)
 }
 
 model Schedule {
@@ -50,15 +57,29 @@ model Schedule {
   endTime   String
 }
 
-model DoctorAppointment {
-  id        String   @id @default(cuid())
-  doctorId  String
-  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  patientId String
-  patient   User     @relation("doctorAppointments", fields: [patientId], references: [id])
-  date      DateTime
-  time      String
-  status    String   @default("pending")
-  notes     String?
-  createdAt DateTime @default(now())
+model Appointment {
+  id           String   @id @default(cuid())
+  doctorId     String
+  doctor       Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  serviceId    String?
+  service      String?
+  patientName  String
+  patientPhone String?
+  patientEmail String?
+  date         DateTime
+  time         String
+  status       String   @default("pending")
+  notes        String?
+  createdAt    DateTime @default(now())
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  image       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
 }

@@ -1,96 +1,133 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 
-type Doctor = {
-  id: string
-  name: string
-  specialization: string
-  location: string | null
-  hospital: string | null
-  price: number | null
-  schedules: { dayOfWeek: number; startTime: string; endTime: string }[]
+type Clinic = {
+  name: string; address: string; phone: string; email: string; about: string; openDays: string; openHours: string
+  doctors: { id: string; name: string; specialty: string }[]
+  services: { id: string; name: string; description: string | null; price: number | null; duration: number | null }[]
+  promotions: { id: string; title: string; description: string | null }[]
 }
 
 export default function HomePage() {
-  const [doctors, setDoctors] = useState<Doctor[]>([])
-  const [specs, setSpecs] = useState<string[]>([])
-  const [filterSpec, setFilterSpec] = useState("")
-  const [search, setSearch] = useState("")
-  const [loading, setLoading] = useState(true)
+  const [clinic, setClinic] = useState<Clinic | null>(null)
 
-  useEffect(() => {
-    fetch("/api/specializations").then(r => r.json()).then(setSpecs)
-  }, [])
+  useEffect(() => { fetch("/api/clinic").then(r => r.json()).then(setClinic) }, [])
 
-  useEffect(() => {
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (filterSpec) params.set("specialization", filterSpec)
-    if (search) params.set("search", search)
-    fetch(`/api/doctors?${params}`).then(r => r.json()).then(d => {
-      setDoctors(d)
-      setLoading(false)
-    })
-  }, [filterSpec, search])
-
-  const days = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
+  if (!clinic) return (
+    <div className="min-h-screen bg-white p-6 space-y-4 max-w-5xl mx-auto">
+      {[1,2,3,4].map(i => <Skeleton key={i} className="h-40 rounded-xl" />)}
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b px-6 py-4 flex items-center gap-4">
-        <h1 className="font-bold text-xl tracking-tight">Sehatin</h1>
-        <Select value={filterSpec} onValueChange={setFilterSpec}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Semua Spesialis" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua Spesialis</SelectItem>
-            {specs.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Input placeholder="Cari dokter..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" />
-      </header>
+    <div className="min-h-screen bg-white">
+      {/* HERO */}
+      <section className="bg-gradient-to-br from-cyan-600 to-cyan-800 text-white px-6 py-20">
+        <div className="max-w-5xl mx-auto text-center space-y-4">
+          <h1 className="text-4xl font-bold tracking-tight">{clinic.name}</h1>
+          <p className="text-lg text-cyan-100 max-w-xl mx-auto">{clinic.about}</p>
+          <p className="text-sm text-cyan-200">{clinic.openDays} · {clinic.openHours}</p>
+          <div className="flex gap-3 justify-center pt-4">
+            <Button size="lg" className="bg-white text-cyan-700 hover:bg-cyan-50" asChild>
+              <a href={`https://wa.me/${clinic.phone}`}>Booking via WhatsApp</a>
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-cyan-700" asChild>
+              <a href="#booking">Booking Online</a>
+            </Button>
+          </div>
+        </div>
+      </section>
 
-      <main className="max-w-5xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {loading && Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-5 space-y-3">
-              <Skeleton className="w-14 h-14 rounded-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-1/2" />
-              <Skeleton className="h-3 w-2/3" />
-            </CardContent>
-          </Card>
-        ))}
-        {!loading && doctors.map(d => (
-          <a key={d.id} href={`/doctors/${d.id}`} className="block">
-            <Card className="hover:shadow-md transition cursor-pointer">
-              <CardContent className="p-5">
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary mb-3">
-                  {d.name[0]}
-                </div>
-                <h2 className="font-semibold">{d.name}</h2>
-                <Badge variant="secondary" className="mt-1 text-xs">{d.specialization}</Badge>
-                <p className="text-xs text-muted-foreground mt-1">{d.hospital} · {d.location}</p>
-                {d.price && <p className="text-sm font-semibold mt-2">Rp{d.price.toLocaleString()}</p>}
-                <div className="flex gap-1 mt-2 flex-wrap">
-                  {d.schedules.slice(0, 5).map(s => (
-                    <span key={s.dayOfWeek} className="text-[10px] bg-muted px-1.5 py-0.5 rounded">{days[s.dayOfWeek]} {s.startTime}</span>
-                  ))}
+      {/* LAYANAN */}
+      <section id="services" className="max-w-5xl mx-auto px-6 py-16 space-y-8">
+        <h2 className="text-2xl font-bold text-center">Layanan Kami</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {clinic.services.map(s => (
+            <Card key={s.id}>
+              <CardContent className="p-5 space-y-2">
+                <h3 className="font-semibold">{s.name}</h3>
+                {s.description && <p className="text-sm text-slate-500">{s.description}</p>}
+                <div className="flex items-center justify-between pt-2">
+                  <p className="font-bold text-lg">{s.price === 0 ? "GRATIS" : `Rp${s.price?.toLocaleString()}`}</p>
+                  {s.duration && <Badge variant="secondary">{s.duration} menit</Badge>}
                 </div>
               </CardContent>
             </Card>
-          </a>
-        ))}
-      </main>
+          ))}
+        </div>
+      </section>
+
+      {/* DOKTER */}
+      <section id="doctors" className="bg-slate-50 px-6 py-16">
+        <div className="max-w-5xl mx-auto space-y-8">
+          <h2 className="text-2xl font-bold text-center">Dokter Kami</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {clinic.doctors.map(d => (
+              <Card key={d.id}>
+                <CardContent className="p-5 text-center space-y-2">
+                  <div className="w-20 h-20 rounded-full bg-cyan-100 mx-auto flex items-center justify-center text-2xl font-bold text-cyan-600">{d.name[4]}</div>
+                  <h3 className="font-semibold">{d.name}</h3>
+                  <p className="text-sm text-slate-500">{d.specialty}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PROMO */}
+      {clinic.promotions.length > 0 && (
+        <section className="max-w-5xl mx-auto px-6 py-16 space-y-8">
+          <h2 className="text-2xl font-bold text-center">Promo Spesial</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {clinic.promotions.map(p => (
+              <Card key={p.id} className="border-2 border-amber-400">
+                <CardContent className="p-5 space-y-2">
+                  <Badge className="bg-amber-400 text-amber-900">Promo</Badge>
+                  <h3 className="font-semibold text-lg">{p.title}</h3>
+                  {p.description && <p className="text-sm text-slate-500">{p.description}</p>}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* BOOKING */}
+      <section id="booking" className="bg-white px-6 py-16">
+        <div className="max-w-xl mx-auto space-y-6">
+          <h2 className="text-2xl font-bold text-center">Booking Janji Temu</h2>
+          <p className="text-sm text-slate-500 text-center">Pilih layanan, dokter, dan jadwal. Kami konfirmasi via WhatsApp.</p>
+          <div className="flex flex-col gap-3">
+            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white" asChild>
+              <a href={`https://wa.me/${clinic.phone}?text=Halo%20${encodeURIComponent(clinic.name)}%2C%20saya%20mau%20booking%20janji%20temu`}>
+                Booking via WhatsApp
+              </a>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <a href={"/booking"}>Booking Online</a>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* KONTAK */}
+      <section className="bg-slate-900 text-white px-6 py-12">
+        <div className="max-w-5xl mx-auto text-center space-y-4">
+          <h2 className="text-xl font-bold">Kontak</h2>
+          <p className="text-slate-300">{clinic.address}</p>
+          <p className="text-slate-300">{clinic.openDays} · {clinic.openHours}</p>
+          <p className="text-slate-300">{clinic.email}</p>
+          <Button variant="outline" className="border-white text-white mt-2 hover:bg-slate-800" asChild>
+            <a href={`tel:${clinic.phone}`}>Telpon {clinic.phone}</a>
+          </Button>
+        </div>
+      </section>
     </div>
   )
 }

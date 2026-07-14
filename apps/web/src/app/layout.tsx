@@ -5,14 +5,14 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Sehatin — Booking Dokter",
-  description: "Temukan dokter & booking janji temu dengan mudah.",
+  title: "Klinik Gigi Sehatin",
+  description: "Booking dokter gigi online. Cepat, murah, no lemot.",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased`}>{children}</body>
+      <body className={`${inter.className} bg-white text-slate-900 antialiased`}>{children}</body>
     </html>
   )
 }

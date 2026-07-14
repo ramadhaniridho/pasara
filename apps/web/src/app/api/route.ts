@@ -1,88 +1,45 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { prisma } from "@pasara/db"
 
 export const dynamic = "force-dynamic"
 
 const R = (data: unknown, status = 200) => NextResponse.json(data, { status })
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   const url = new URL(req.url)
   const path = url.pathname
 
-  // /api/doctors
-  if (path === "/api/doctors") {
-    const spec = url.searchParams.get("specialization") || undefined
-    const search = url.searchParams.get("search") || undefined
-    const doctors = await prisma.doctor.findMany({
-      where: {
-        ...(spec && { specialization: spec }),
-        ...(search && { name: { contains: search, mode: "insensitive" } }),
-      },
-      include: { schedules: true },
-    })
-    return R(doctors)
-  }
+  const clinic = await prisma.clinic.findFirst({ include: { doctors: { include: { schedules: true } }, services: { orderBy: { sortOrder: "asc" } }, promotions: { where: { active: true } } } })
+  if (!clinic) return R({ error: "no clinic" }, 404)
 
-  // /api/doctors/:id
+  if (path === "/api/clinic") return R(clinic)
+  if (path === "/api/doctors") return R(clinic.doctors)
+  if (path === "/api/services") return R(clinic.services)
+  if (path === "/api/promotions") return R(clinic.promotions)
+
   const idMatch = path.match(/^\/api\/doctors\/(.+)$/)
   if (idMatch) {
-    const doctor = await prisma.doctor.findUnique({
-      where: { id: idMatch[1] },
-      include: { schedules: true },
-    })
-    return doctor ? R(doctor) : R({ error: "not found" }, 404)
-  }
-
-  // /api/specializations
-  if (path === "/api/specializations") {
-    const specs = await prisma.doctor.findMany({
-      select: { specialization: true },
-      distinct: ["specialization"],
-    })
-    return R(specs.map(s => s.specialization))
+    const doc = clinic.doctors.find(d => d.id === idMatch[1])
+    return doc ? R(doc) : R({ error: "not found" }, 404)
   }
 
   return R({ error: "not found" }, 404)
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   const url = new URL(req.url)
   const path = url.pathname
 
-  // /api/appointments — create booking
   if (path === "/api/appointments") {
-    try {
-      const body = await req.json()
-      const apt = await prisma.doctorAppointment.create({
-        data: {
-          doctorId: body.doctorId,
-          patientId: body.patientId,
-          date: new Date(body.date),
-          time: body.time,
-          status: "pending",
-          notes: body.notes || null,
-        },
-      })
-      return R(apt, 201)
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "unknown error"
-      return R({ error: msg }, 400)
-    }
+    const body = await req.json()
+    const apt = await prisma.appointment.create({ data: body })
+    return R(apt, 201)
   }
 
-  // /api/login
-  if (path === "/api/login") {
-    const { email } = await req.json()
-    if (!email) return R({ error: "email required" }, 400)
-    let user = await prisma.user.findUnique({ where: { email } })
-    if (!user) {
-      user = await prisma.user.create({
-        data: { name: email.split("@")[0], email, role: "PATIENT" },
-      })
-    }
-    // strip sensitive — ponytail: no real auth
-    const { password: _, ...safe } = user
-    return R(safe)
+  if (path === "/api/appointments/update") {
+    const { id, status } = await req.json()
+    const apt = await prisma.appointment.update({ where: { id }, data: { status } })
+    return R(apt)
   }
 
   return R({ error: "not found" }, 404)
