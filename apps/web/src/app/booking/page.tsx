@@ -20,6 +20,7 @@ export default function BookingPage() {
   const [date, setDate] = useState("")
   const [time, setTime] = useState("")
   const [form, setForm] = useState({ name: "", phone: "", email: "", notes: "" })
+  const [anamnesis, setAnamnesis] = useState({ penyakit: "", penyakitDesc: "", hamil: "", alergi: "", alergiDesc: "", obat: "", obatDesc: "", merokok: "", sikatGigi: "", terakhirKeDokter: "" })
   const [slots, setSlots] = useState<string[]>([])
   const [done, setDone] = useState(false)
   const router = useRouter()
@@ -55,7 +56,7 @@ export default function BookingPage() {
       patientName: form.name,
       patientPhone: form.phone,
       patientEmail: form.email,
-      notes: form.notes,
+      notes: [form.notes, Object.entries(anamnesis).filter(([_,v]) => v).map(([k,v]) => `${k}: ${v}`).join("\n")].filter(Boolean).join("\n---\n"),
       status: "pending",
     }
     const res = await fetch("/api/appointments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
@@ -136,6 +137,35 @@ export default function BookingPage() {
           <label className="text-sm font-medium">Keluhan</label>
           <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Sampaikan keluhan Anda..." />
         </div>
+
+        <details className="border rounded-xl p-4 space-y-3 text-sm">
+          <summary className="font-semibold cursor-pointer text-sm text-cyan-700">📋 Anamnesis — Riwayat Kesehatan (opsional)</summary>
+          <p className="text-xs text-slate-400">Informasi ini membantu dokter gigi memahami kondisi Anda sebelum pemeriksaan.</p>
+
+          <div><label className="text-xs font-medium">Apakah Anda memiliki penyakit tertentu? (diabetes, jantung, hipertensi, dll)</label>
+          <div className="flex gap-2 mt-1">{[["tidak","Tidak"],["ya","Ya"]].map(([v,l]) => <Button key={v} type="button" variant={anamnesis.penyakit===v?"default":"outline"} size="sm" onClick={()=>setAnamnesis({...anamnesis,penyakit:v})}>{l}</Button>)}</div>
+          {anamnesis.penyakit==="ya" && <Input className="mt-2" value={anamnesis.penyakitDesc} onChange={e=>setAnamnesis({...anamnesis,penyakitDesc:e.target.value})} placeholder="Sebutkan..." />}</div>
+
+          <div><label className="text-xs font-medium">Apakah Anda sedang hamil / menyusui?</label>
+          <div className="flex gap-2 mt-1">{[["tidak","Tidak"],["ya","Ya"]].map(([v,l]) => <Button key={v} type="button" variant={anamnesis.hamil===v?"default":"outline"} size="sm" onClick={()=>setAnamnesis({...anamnesis,hamil:v})}>{l}</Button>)}</div></div>
+
+          <div><label className="text-xs font-medium">Apakah Anda punya alergi? (obat, lateks, dll)</label>
+          <div className="flex gap-2 mt-1">{[["tidak","Tidak"],["ya","Ya"]].map(([v,l]) => <Button key={v} type="button" variant={anamnesis.alergi===v?"default":"outline"} size="sm" onClick={()=>setAnamnesis({...anamnesis,alergi:v})}>{l}</Button>)}</div>
+          {anamnesis.alergi==="ya" && <Input className="mt-2" value={anamnesis.alergiDesc} onChange={e=>setAnamnesis({...anamnesis,alergiDesc:e.target.value})} placeholder="Sebutkan alergi..." />}</div>
+
+          <div><label className="text-xs font-medium">Apakah sedang minum obat rutin?</label>
+          <div className="flex gap-2 mt-1">{[["tidak","Tidak"],["ya","Ya"]].map(([v,l]) => <Button key={v} type="button" variant={anamnesis.obat===v?"default":"outline"} size="sm" onClick={()=>setAnamnesis({...anamnesis,obat:v})}>{l}</Button>)}</div>
+          {anamnesis.obat==="ya" && <Input className="mt-2" value={anamnesis.obatDesc} onChange={e=>setAnamnesis({...anamnesis,obatDesc:e.target.value})} placeholder="Sebutkan obat..." />}</div>
+
+          <div><label className="text-xs font-medium">Apakah Anda merokok?</label>
+          <div className="flex gap-2 mt-1">{[["tidak","Tidak"],["ya","Ya"]].map(([v,l]) => <Button key={v} type="button" variant={anamnesis.merokok===v?"default":"outline"} size="sm" onClick={()=>setAnamnesis({...anamnesis,merokok:v})}>{l}</Button>)}</div></div>
+
+          <div><label className="text-xs font-medium">Seberapa sering sikat gigi per hari?</label>
+          <Input value={anamnesis.sikatGigi} onChange={e=>setAnamnesis({...anamnesis,sikatGigi:e.target.value})} placeholder="Contoh: 2x sehari" /></div>
+
+          <div><label className="text-xs font-medium">Kapan terakhir ke dokter gigi?</label>
+          <Input value={anamnesis.terakhirKeDokter} onChange={e=>setAnamnesis({...anamnesis,terakhirKeDokter:e.target.value})} placeholder="Contoh: 6 bulan lalu / tidak pernah" /></div>
+        </details>
 
         <Button onClick={handleSubmit} disabled={!selectedService || !selectedDoctor || !date || !time || !form.name} className="w-full" size="lg">
           Booking Sekarang
