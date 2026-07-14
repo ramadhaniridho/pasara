@@ -8,16 +8,17 @@ const R = (data: unknown, status = 200) => NextResponse.json(data, { status })
 export async function GET(req: Request) {
   const url = new URL(req.url)
   const path = url.pathname
+  const slug = path.replace("/api/", "")
 
   const clinic = await prisma.clinic.findFirst({ include: { doctors: { include: { schedules: true } }, services: { orderBy: { sortOrder: "asc" } }, promotions: { where: { active: true } } } })
   if (!clinic) return R({ error: "no clinic" }, 404)
 
-  if (path === "/api/clinic") return R(clinic)
-  if (path === "/api/doctors") return R(clinic.doctors)
-  if (path === "/api/services") return R(clinic.services)
-  if (path === "/api/promotions") return R(clinic.promotions)
+  if (slug === "clinic") return R(clinic)
+  if (slug === "doctors") return R(clinic.doctors)
+  if (slug === "services") return R(clinic.services)
+  if (slug === "promotions") return R(clinic.promotions)
 
-  const idMatch = path.match(/^\/api\/doctors\/(.+)$/)
+  const idMatch = slug.match(/^doctors\/(.+)$/)
   if (idMatch) {
     const doc = clinic.doctors.find(d => d.id === idMatch[1])
     return doc ? R(doc) : R({ error: "not found" }, 404)
@@ -28,15 +29,15 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const url = new URL(req.url)
-  const path = url.pathname
+  const slug = url.pathname.replace("/api/", "")
 
-  if (path === "/api/appointments") {
+  if (slug === "appointments") {
     const body = await req.json()
     const apt = await prisma.appointment.create({ data: body })
     return R(apt, 201)
   }
 
-  if (path === "/api/appointments/update") {
+  if (slug === "appointments/update") {
     const { id, status } = await req.json()
     const apt = await prisma.appointment.update({ where: { id }, data: { status } })
     return R(apt)

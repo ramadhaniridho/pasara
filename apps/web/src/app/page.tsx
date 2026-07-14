@@ -38,7 +38,7 @@ export default function HomePage() {
               <a href={`https://wa.me/${clinic.phone}`}>Booking via WhatsApp</a>
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-cyan-700" asChild>
-              <a href="#booking">Booking Online</a>
+              <Link href="/booking">Booking Online</Link>
             </Button>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function HomePage() {
               </a>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <a href={"/booking"}>Booking Online</a>
+              <Link href="/booking">Booking Online</Link>
             </Button>
           </div>
         </div>
