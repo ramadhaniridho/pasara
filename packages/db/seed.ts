@@ -47,14 +47,14 @@ async function main() {
 
   await prisma.service.createMany({
     data: [
-      { clinicId: clinic.id, name: "Cek Gigi", description: "Pemeriksaan gigi lengkap", price: 50000, duration: 30 },
-      { clinicId: clinic.id, name: "Scaling / Pembersihan Karang Gigi", description: "Bersihkan karang dan noda gigi", price: 150000, duration: 45 },
-      { clinicId: clinic.id, name: "Tambal Gigi", description: "Tambal gigi berlubang (per gigi)", price: 200000, duration: 60 },
-      { clinicId: clinic.id, name: "Cabut Gigi", description: "Cabut gigi tanpa operasi", price: 250000, duration: 30 },
-      { clinicId: clinic.id, name: "Behel / Ortodonti", description: "Konsultasi + pasang behel", price: 3500000, duration: 90 },
-      { clinicId: clinic.id, name: "Bleaching / Pemutih Gigi", description: "Whitening treatment", price: 500000, duration: 60 },
-      { clinicId: clinic.id, name: "Pasang Mahkota Gigi", description: "Mahkota gigi porselen", price: 1500000, duration: 90 },
-      { clinicId: clinic.id, name: "Konsultasi Gratis", description: "Konsultasi dengan dokter gigi", price: 0, duration: 15 },
+      { clinicId: clinic.id, name: "Cek Gigi", slug: "cek-gigi", description: "Pemeriksaan gigi lengkap", price: 50000, duration: 30, sortOrder: 1 },
+      { clinicId: clinic.id, name: "Scaling / Pembersihan Karang Gigi", slug: "scaling", description: "Bersihkan karang dan noda gigi", price: 150000, duration: 45, sortOrder: 2 },
+      { clinicId: clinic.id, name: "Tambal Gigi", slug: "tambal-gigi", description: "Tambal gigi berlubang (per gigi)", price: 200000, duration: 60, sortOrder: 3 },
+      { clinicId: clinic.id, name: "Cabut Gigi", slug: "cabut-gigi", description: "Cabut gigi tanpa operasi", price: 250000, duration: 30, sortOrder: 4 },
+      { clinicId: clinic.id, name: "Behel / Ortodonti", slug: "behel-ortodonti", description: "Konsultasi + pasang behel", price: 3500000, duration: 90, sortOrder: 5 },
+      { clinicId: clinic.id, name: "Bleaching / Pemutih Gigi", slug: "bleaching", description: "Whitening treatment", price: 500000, duration: 60, sortOrder: 6 },
+      { clinicId: clinic.id, name: "Pasang Mahkota Gigi", slug: "mahkota-gigi", description: "Mahkota gigi porselen", price: 1500000, duration: 90, sortOrder: 7 },
+      { clinicId: clinic.id, name: "Konsultasi Gratis", slug: "konsultasi-gratis", description: "Konsultasi dengan dokter gigi", price: 0, duration: 15, sortOrder: 8 },
     ],
   })
 

@@ -42,6 +42,7 @@ model Service {
   clinicId    String
   clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   name        String
+  slug        String   @unique
   description String?
   price       Int?
   duration    Int?

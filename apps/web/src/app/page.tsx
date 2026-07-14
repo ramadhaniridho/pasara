@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import Link from "next/link"
 
 type Clinic = {
   name: string; address: string; phone: string; email: string; about: string; openDays: string; openHours: string
   doctors: { id: string; name: string; specialty: string }[]
-  services: { id: string; name: string; description: string | null; price: number | null; duration: number | null }[]
+  services: { id: string; name: string; description: string | null; price: number | null; duration: number | null; slug: string }[]
   promotions: { id: string; title: string; description: string | null }[]
 }
 
@@ -48,14 +49,17 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold text-center">Layanan Kami</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {clinic.services.map(s => (
-            <Card key={s.id}>
+            <Card key={s.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-5 space-y-2">
-                <h3 className="font-semibold">{s.name}</h3>
-                {s.description && <p className="text-sm text-slate-500">{s.description}</p>}
+                <h3 className="font-semibold text-lg">{s.name}</h3>
+                <p className="text-sm text-slate-500">{s.description}</p>
                 <div className="flex items-center justify-between pt-2">
                   <p className="font-bold text-lg">{s.price === 0 ? "GRATIS" : `Rp${s.price?.toLocaleString()}`}</p>
                   {s.duration && <Badge variant="secondary">{s.duration} menit</Badge>}
                 </div>
+                <Button variant="link" size="sm" className="p-0" asChild>
+                  <Link href={`/layanan/${s.slug}`}>Detail →</Link>
+                </Button>
               </CardContent>
             </Card>
           ))}
