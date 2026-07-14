@@ -31,7 +31,8 @@ export default async function ConfirmPage({ params }: { params: Promise<{ id: st
             <div key={a.id} className="border rounded-lg p-3 text-sm">
               <p className="font-medium">{a.doctor?.name}</p>
               <p className="text-xs text-slate-500">{a.doctor?.specialization} · {a.doctor?.hospital}</p>
-              <p className="text-xs text-slate-400">{new Date(a.date).toLocaleDateString("id-ID")} jam {a.time}</p>
+              <p className="text-xs text-slate-400">{new Date(a.date).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} jam {a.time}</p>
+              {a.notes && <p className="text-xs text-slate-500 mt-1 italic">"{a.notes}"</p>}
               <span className={`text-xs font-medium ${a.status === "confirmed" ? "text-green-600" : a.status === "cancelled" ? "text-red-500" : "text-yellow-500"}`}>
                 {a.status === "pending" ? "Menunggu konfirmasi" : a.status === "confirmed" ? "Dikonfirmasi" : "Dibatalkan"}
               </span>

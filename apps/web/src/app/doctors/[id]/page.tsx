@@ -20,7 +20,7 @@ export default function DoctorPage({ params }: { params: Promise<{ id: string }>
   const [doctor, setDoctor] = useState<Doctor | null>(null)
   const [slots, setSlots] = useState<{ date: string; time: string }[]>([])
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
-  const [form, setForm] = useState({ name: "", phone: "", email: "" })
+  const [form, setForm] = useState({ name: "", phone: "", email: "", notes: "" })
 
   const days = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
 
@@ -63,7 +63,7 @@ export default function DoctorPage({ params }: { params: Promise<{ id: string }>
         patientId: user.id,
         date,
         time,
-        notes: `${form.name} — ${form.phone || "-"}`,
+        notes: `${form.name} — ${form.phone || "-"}` + (form.notes ? ` | ${form.notes}` : ""),
       }),
     })
     if (res.ok) router.push(`/confirm/${user.id}`)
@@ -105,10 +105,21 @@ export default function DoctorPage({ params }: { params: Promise<{ id: string }>
           <input className="w-full border rounded-lg px-4 py-2 text-sm" placeholder="Nama lengkap *" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
           <input className="w-full border rounded-lg px-4 py-2 text-sm" placeholder="No. HP" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
           <input className="w-full border rounded-lg px-4 py-2 text-sm" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+          <textarea className="w-full border rounded-lg px-4 py-2 text-sm" placeholder="Alasan mendaftar / keluhan (opsional)" value={form.notes || ""} onChange={e => setForm({ ...form, notes: e.target.value })} />
           <button onClick={handleBook} disabled={!selectedSlot || !form.name} className="w-full bg-blue-600 text-white rounded-lg py-2.5 font-medium disabled:opacity-50">
             Booking Janji Temu
           </button>
         </div>
+
+<script dangerouslySetInnerHTML={{ __html: `// ponytail: date label — inline, no lib
+document.querySelectorAll(".slot-btn").forEach(b => {
+  const d = b.dataset.date
+  if (d) {
+    const dt = new Date(d + "T00:00:00")
+    const days = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"]
+    b.dataset.dayLabel = days[dt.getDay()]
+  }
+})` }} />
       </main>
     </div>
   )
