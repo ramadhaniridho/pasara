@@ -17,6 +17,10 @@
     "jsx": "preserve",
     "incremental": true,
     "target": "ES2017",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "plugins": [
       {
         "name": "next"
