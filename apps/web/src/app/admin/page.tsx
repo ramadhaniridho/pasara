@@ -29,7 +29,7 @@ export default async function AdminPage() {
       <div className="max-w-5xl mx-auto space-y-6">
         <h1 className="text-xl font-bold">Admin — Booking</h1>
 
-        <div className="flex gap-4 text-sm">
+        <div className="flex flex-wrap gap-4 text-sm">
           <span>Pending: <strong>{counts.pending}</strong></span>
           <span>Confirmed: <strong>{counts.confirmed}</strong></span>
           <span>Done: <strong>{counts.done}</strong></span>
@@ -39,7 +39,7 @@ export default async function AdminPage() {
         <div className="space-y-3">
           {appointments.map(a => (
             <Card key={a.id}>
-              <CardContent className="p-4 flex items-center justify-between">
+              <CardContent className="p-4 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3">
                 <div className="space-y-1 text-sm">
                   <p className="font-medium">{a.patientName}</p>
                   <p className="text-slate-500">{a.doctor.name} · {a.service}</p>

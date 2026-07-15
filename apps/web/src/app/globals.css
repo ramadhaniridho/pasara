@@ -25,13 +25,37 @@
     --ring: 187 100% 42%;
     --radius: 0.75rem;
   }
+
+  /* Mobile-first base */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  /* Tap highlight for mobile */
+  a, button, select, textarea, input {
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* At least 44px touch targets */
+  input, select, textarea {
+    @apply text-base;
+    min-height: 44px;
+  }
+
+  @screen xs {
+    body {
+      @apply text-sm;
+    }
+    h1 { @apply text-xl; }
+    h2 { @apply text-lg; }
+  }
 }
 
 @layer base {
   * {
     @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
   }
 }

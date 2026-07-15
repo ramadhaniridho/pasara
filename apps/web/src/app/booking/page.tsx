@@ -23,6 +23,8 @@ export default function BookingPage() {
   const [anamnesis, setAnamnesis] = useState<Record<string,string>>({})
   const [slots, setSlots] = useState<string[]>([])
   const [done, setDone] = useState(false)
+  const [error, setError] = useState("")
+  const [sending, setSending] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -48,6 +50,8 @@ export default function BookingPage() {
 
   const handleSubmit = async () => {
     if (!selectedService || !selectedDoctor || !date || !time || !form.name) return
+    setError("")
+    setSending(true)
     const body = {
       doctorId: selectedDoctor,
       service: services.find(s => s.id === selectedService)?.name || "",
@@ -59,8 +63,15 @@ export default function BookingPage() {
       notes: [form.notes, Object.entries(anamnesis).length ? Object.entries(anamnesis).map(([k,v]) => `${k}: ${v}`).join("\n") : ""].filter(Boolean).join("\n---\n"),
       status: "pending",
     }
-    const res = await fetch("/api/appointments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-    if (res.ok) setDone(true)
+    try {
+      const res = await fetch("/api/appointments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      if (res.ok) setDone(true)
+      else setError("Gagal booking. Coba lagi.")
+    } catch {
+      setError("Koneksi error. Cek internet.")
+    } finally {
+      setSending(false)
+    }
   }
 
   if (done) return (
@@ -112,7 +123,7 @@ export default function BookingPage() {
             <label className="text-sm font-medium">Jam *</label>
             <div className="flex flex-wrap gap-2">
               {slots.map(s => (
-                <Button key={s} variant={time === s ? "default" : "outline"} size="sm" onClick={() => setTime(s)}>
+                <Button key={s} variant={time === s ? "default" : "outline"} size="sm" className="min-w-[3.5rem] min-h-[2.75rem]" onClick={() => setTime(s)}>
                   {s}
                 </Button>
               ))}
@@ -156,8 +167,9 @@ export default function BookingPage() {
           ))}
         </details>
 
-        <Button onClick={handleSubmit} disabled={!selectedService || !selectedDoctor || !date || !time || !form.name} className="w-full" size="lg">
-          Booking Sekarang
+        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+        <Button onClick={handleSubmit} disabled={!selectedService || !selectedDoctor || !date || !time || !form.name || sending} className="w-full" size="lg">
+          {sending ? "Mengirim..." : "Booking Sekarang"}
         </Button>
       </main>
     </div>

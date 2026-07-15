@@ -21,10 +21,10 @@ export default async function HomePage() {
       {/* HERO */}
       <section className="bg-gradient-to-br from-cyan-600 to-cyan-800 text-white px-6 py-20">
         <div className="max-w-5xl mx-auto text-center space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">{clinic.name}</h1>
-          <p className="text-lg text-cyan-100 max-w-xl mx-auto">{clinic.about}</p>
+          <h1 className="text-2xl xs:text-3xl sm:text-4xl font-bold tracking-tight">{clinic.name}</h1>
+          <p className="text-sm xs:text-base text-cyan-100 max-w-xl mx-auto">{clinic.about}</p>
           <p className="text-sm text-cyan-200">{clinic.openDays} · {clinic.openHours}</p>
-          <div className="flex gap-3 justify-center pt-4">
+          <div className="flex flex-col xs:flex-row gap-3 justify-center pt-4">
             <Button size="lg" className="bg-white text-cyan-700 hover:bg-cyan-50" asChild>
               <a href={`https://wa.me/${clinic.phone}`}>Booking via WhatsApp</a>
             </Button>

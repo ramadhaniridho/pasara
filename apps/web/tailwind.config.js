@@ -3,6 +3,13 @@ module.exports = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      screens: {
+        xs: "360px",
+        sm: "480px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
