@@ -1,29 +1,20 @@
-"use client"
-
-import { useEffect, useState } from "react"
+import { prisma } from "@pasara/db"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import Link from "next/link"
 
-type Clinic = {
-  name: string; address: string; phone: string; email: string; about: string; openDays: string; openHours: string
-  doctors: { id: string; name: string; specialty: string }[]
-  services: { id: string; name: string; description: string | null; price: number | null; duration: number | null; slug: string }[]
-  promotions: { id: string; title: string; description: string | null }[]
-}
+export const dynamic = "force-dynamic"
 
-export default function HomePage() {
-  const [clinic, setClinic] = useState<Clinic | null>(null)
-
-  useEffect(() => { fetch("/api/clinic").then(r => r.json()).then(setClinic) }, [])
-
-  if (!clinic) return (
-    <div className="min-h-screen bg-white p-6 space-y-4 max-w-5xl mx-auto">
-      {[1,2,3,4].map(i => <Skeleton key={i} className="h-40 rounded-xl" />)}
-    </div>
-  )
+export default async function HomePage() {
+  const clinic = await prisma.clinic.findFirst({
+    include: {
+      doctors: true,
+      services: { orderBy: { sortOrder: "asc" } },
+      promotions: { where: { active: true } },
+    },
+  })
+  if (!clinic) return <div className="p-10 text-center">Klinik not found</div>
 
   return (
     <div className="min-h-screen bg-white">
